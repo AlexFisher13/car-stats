@@ -42,7 +42,10 @@ const ALL_BRANDS = Array.from(
 const N = 25;
 const TICK = 500;
 
-export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, containerHeight = 700, limitBarStretch = true, maxBarHeight = 28, minBarGap = 8 } = {}) {
+export default function BrandDynamics({ svgWidth = 800, svgHeight = 550, containerHeight, limitBarStretch = true, maxBarHeight = 28, minBarGap = 8 } = {}) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const mSvgWidth = svgWidth; // viewBox width; scaled via CSS
+  const mSvgHeight = isMobile ? Math.min(420, svgHeight) : svgHeight;
   const svgRef = useRef(null);
   const timerRef = useRef(null);
   const stepRef = useRef(0);
@@ -53,9 +56,11 @@ export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, contain
   const [isPaused, setIsPaused] = React.useState(false);
 
   useEffect(() => {
-    const width = svgWidth;
-    const height = svgHeight;
-    const margin = { top: 70, right: 120, bottom: 30, left: 140 };
+    const width = mSvgWidth;
+    const height = mSvgHeight;
+    const margin = isMobile
+      ? { top: 20, right: 80, bottom: 8, left: 100 }
+      : { top: 28, right: 120, bottom: 10, left: 140 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -75,6 +80,7 @@ export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, contain
     const labelsG = g.append("g");
     const valuesG = g.append("g");
 
+    const yearFont = isMobile ? 18 : 28;
     const yearLabel = svg
       .append("text")
       .attr("x", margin.left + innerWidth / 2)
@@ -82,7 +88,7 @@ export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, contain
       .attr("y", margin.top / 2)
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
-      .attr("font-size", 28)
+      .attr("font-size", yearFont)
       .attr("font-weight", 400)
       .attr("opacity", 1);
 
@@ -118,7 +124,8 @@ export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, contain
         }
         return diff;
       });
-      data = data.slice(0, N).map((d, i) => ({ ...d, rank: i }));
+      const MAX_BARS = isMobile ? 12 : N;
+      data = data.slice(0, MAX_BARS).map((d, i) => ({ ...d, rank: i }));
 
       const topMax = d3.max(data, (d) => d.value) || 0;
       const targetMax = d3.scaleLinear().domain([0, topMax * 1.1]).nice().domain()[1];
@@ -369,18 +376,18 @@ export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, contain
             <CardTitle>Динамика выпуска</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <button
                 onClick={start}
                 disabled={isRunning}
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:px-4 sm:py-2 sm:text-base"
               >
                 Старт
               </button>
               {isRunning && !isPaused && (
                 <button
                   onClick={pause}
-                  className="rounded bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700"
+                  className="rounded bg-yellow-600 px-3 py-2 text-white hover:bg-yellow-700 text-sm sm:px-4 sm:py-2 sm:text-base"
                 >
                   Пауза
                 </button>
@@ -390,35 +397,35 @@ export default function BrandDynamics({ svgWidth = 800, svgHeight = 500, contain
                   <button
                     onClick={() => rewind(5)}
                     disabled={stepRef.current === 0}
-                    className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:px-4 sm:py-2 sm:text-base"
                   >
                     ⏪ -5
                   </button>
                   <button
                     onClick={stepBackward}
                     disabled={stepRef.current === 0}
-                    className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:px-4 sm:py-2 sm:text-base"
                   >
                     ⏮ -1
                   </button>
                   <button
                     onClick={stepForward}
                     disabled={stepRef.current >= SERIES.length - 1}
-                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:px-4 sm:py-2 sm:text-base"
                   >
                     ⏭ +1
                   </button>
                   <button
                     onClick={resume}
-                    className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                    className="rounded bg-green-600 px-3 py-2 text-white hover:bg-green-700 text-sm sm:px-4 sm:py-2 sm:text-base"
                   >
                     Продолжить
                   </button>
                 </>
               )}
             </div>
-            <div className="w-full relative" style={{ height: (typeof containerHeight === "number" ? `${containerHeight}px` : containerHeight) }}>
-              <svg ref={svgRef} className="w-full h-full" />
+            <div className="w-full relative" style={{ height: containerHeight != null ? (typeof containerHeight === "number" ? `${containerHeight}px` : containerHeight) : 'auto' }}>
+              <svg ref={svgRef} className="w-full" style={{ height: `${mSvgHeight}px`, display: 'block' }} />
             </div>
           </CardContent>
         </Card>

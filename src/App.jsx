@@ -403,12 +403,20 @@ export default function App() {
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">CarStats</h1>
-          <Link
-            to="/brand-dynamics"
-            className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Динамика брендов
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              to="/brand-dynamics"
+              className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Динамика брендов
+            </Link>
+            <Link
+              to="/import-calculator"
+              className="rounded bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+            >
+              Калькулятор импорта
+            </Link>
+          </div>
         </div>
       </header>
 

@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "title": "RU Car Import Calculator",
+  "currencyBase": "RUB",
+  "inputs": {
+    "basePrice": { "type": "number", "unit": "currency", "required": true, "min": 0 },
+    "deliveryCost": { "type": "number", "unit": "currency", "required": false, "default": 0, "min": 0 },
+    "insuranceCost": { "type": "number", "unit": "currency", "required": false, "default": 0, "min": 0 },
+    "priceCurrency": { "type": "string", "enum": ["EUR", "USD", "RUB"], "required": true, "default": "EUR" },
+    "currencyRates": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "EUR": { "type": "number", "min": 1 },
+        "USD": { "type": "number", "min": 1 },
+        "RUB": { "type": "number", "const": 1 }
+      }
+    },
+    "engineVolumeCC": { "type": "number", "unit": "cm3", "required": true, "min": 0 },
+    "horsePower": { "type": "number", "unit": "hp", "required": true, "min": 0 },
+    "carAgeYears": { "type": "number", "unit": "years", "required": true, "min": 0 },
+    "fuelType": { "type": "string", "enum": ["gasoline", "diesel", "hybrid", "ev"], "required": true },
+    "vehicleType": { "type": "string", "enum": ["passenger"], "required": true, "default": "passenger" },
+    "isIndividual": { "type": "boolean", "required": true, "default": true },
+    "otherCosts": { "type": "number", "unit": "RUB", "required": false, "default": 0, "min": 0 }
+  },
+  "rateTables": {
+    "customsDuty": {
+      "new": { "percent": 0.15, "minPerCC_EUR": 2.5 },
+      "age_3_to_5": {
+        "perCC_EUR_byBands": [
+          { "ccMax": 1000, "rate": 1.5 },
+          { "ccMax": 1500, "rate": 1.7 },
+          { "ccMax": 1800, "rate": 2.5 },
+          { "ccMax": 2300, "rate": 2.7 },
+          { "ccMax": 3000, "rate": 3.0 },
+          { "ccMax": null, "rate": 3.6 }
+        ]
+      },
+      "age_5_plus": {
+        "perCC_EUR_byBands": [
+          { "ccMax": 1000, "rate": 3.0 },
+          { "ccMax": 1500, "rate": 3.2 },
+          { "ccMax": 1800, "rate": 3.5 },
+          { "ccMax": 2300, "rate": 4.0 },
+          { "ccMax": 3000, "rate": 5.7 },
+          { "ccMax": null, "rate": 7.5 }
+        ]
+      }
+    },
+    "excise": {
+      "gasoline_diesel_hybrid": [
+        { "hpMax": 90, "rateRubPerHP": 0 },
+        { "hpMax": 150, "rateRubPerHP": 49 },
+        { "hpMax": null, "rateRubPerHP": 437 }
+      ],
+      "ev": 0
+    },
+    "vat": { "percent": 0.20, "evPercent": 0.0 },
+    "utilizationFee": {
+      "baseRub_individual": 20000,
+      "baseRub_legal": 20000,
+      "coeffByAge": [
+        { "ageMaxYears": 3, "coeff": 0.17 },
+        { "ageMaxYears": 5, "coeff": 2.0 },
+        { "ageMaxYears": null, "coeff": 5.0 }
+      ],
+      "evExtraCoeff": 1.0
+    },
+    "evCustomsDuty": { "percent": 0.0 }
+  }
+}
